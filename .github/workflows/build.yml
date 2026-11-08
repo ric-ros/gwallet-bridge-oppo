@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Read-only token: pull requests from forks can't change the repo or see secrets.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Fails if gradle-wrapper.jar is not an official Gradle release.
+      - uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Debug build only: release signing stays on the maintainer's machine.
+      # sdkDownload lets AGP fetch platform 36 if the runner lacks it.
+      - run: ./gradlew assembleDebug -Pandroid.builder.sdkDownload=true --no-daemon
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gwallet-bridge-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
