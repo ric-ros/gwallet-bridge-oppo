@@ -1,0 +1,14 @@
+local.properties
+.gradle/
+build/
+app/build/
+.idea/
+*.iml
+*.hprof
+captures/
+.externalNativeBuild/
+.cxx/
+*.keystore
+*.jks
+# debug keystore copies and signing configs
+debug.keystore
