@@ -16,8 +16,8 @@ android {
         applicationId = "com.heytap.wallet"
         minSdk = 31
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.0"
+        versionCode = 6
+        versionName = "1.0.1"
 
         manifestPlaceholders["walletOpenAction"] = "heytap.wallet.intent.action.OPEN"
     }

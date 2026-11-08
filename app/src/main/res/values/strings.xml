@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">gWallet Bridge</string>
-    <string name="authentication_title">Unlock Google Wallet</string>
-    <string name="authentication_description">Authenticate to open Google Wallet</string>
-    <string name="authentication_unavailable">Secure authentication is unavailable</string>
     <string name="wallet_not_installed">Google Wallet is not installed</string>
     <string name="wallet_launch_failed">Google Wallet could not be opened</string>
 </resources>
