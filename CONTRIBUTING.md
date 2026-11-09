@@ -4,7 +4,11 @@ Thanks for helping! Reports from other phones are the most useful thing right no
 
 ## Reporting a phone
 
-Open an issue with:
+If it works, leave a comment in
+[Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1) with your model,
+firmware, and whether it works locked and unlocked.
+
+If it doesn't work, open an issue with:
 
 - phone model and firmware (Settings → About device);
 - whether "OPPO Wallet" appears in **Double-press Power button**;

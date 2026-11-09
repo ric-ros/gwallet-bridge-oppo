@@ -118,8 +118,9 @@ separate labels for OnePlus and realme, so the entry may have a different name t
 
 Suggestions and pull requests are welcome, especially if it doesn't work on your phone.
 
-- **It works on your phone?** Open an issue with your model and firmware
-  (Settings → About device), and we'll add it to the table above.
+- **It works on your phone?** Leave a comment in
+  [Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1) with your model and
+  firmware (Settings → About device), and we'll add it to the table above.
 - **It doesn't work?** Open an issue with your model, firmware, what you saw, and if you can, the
   output of `adb shell settings get global power_dw_allow_setting_pkg`. Logs from
   `adb logcat -d | grep -E "DoubleWake|heytap.wallet"` right after a double press help a lot.
