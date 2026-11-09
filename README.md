@@ -110,8 +110,9 @@ Pointing the shortcut at Google Wallet with `adb` alone isn't possible on the te
 | Phone | Firmware | Result |
 | --- | --- | --- |
 | OPPO Find N6 (`CPH2765`) | Android 17, ColorOS 17, `CPH2765_17.0.0.101(EX01)` | Works, locked and unlocked |
+| OPPO Find X9 Pro | ColorOS 17 | Works ([user report](https://www.reddit.com/r/Oppo/comments/1xr90bv/comment/19scfucneya5c/); lock screen not reported) |
 
-Not tested yet: other OPPO models, other ColorOS versions, OnePlus and realme. The firmware has
+Not tested yet: most other OPPO models, other ColorOS versions, OnePlus and realme. The firmware has
 separate labels for OnePlus and realme, so the entry may have a different name there.
 
 ## Help make it work on more phones

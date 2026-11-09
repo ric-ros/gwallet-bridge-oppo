@@ -44,9 +44,9 @@ ColorOS differs between models and firmware versions. Don't claim something work
 nobody tested. In a pull request, say which phone and firmware it was tested on, and how (unlocked,
 locked with fingerprint/PIN, locked with face unlock), or say plainly that it is untested.
 
-Only add a phone to the README "Tested on" table from a confirmed report in the
-[Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1) discussion or from
-the maintainer.
+Only add a phone to the README "Tested on" table from the maintainer or a user report (usually in
+the [Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1) discussion).
+Mark user reports as such, link them, and don't fill in details the report didn't give.
 
 ## Style
 
