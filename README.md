@@ -1,156 +1,195 @@
 # gWallet Bridge for OPPO
 
 Open **Google Wallet** with a **double press of the power button** on OPPO phones (ColorOS).
-No root, no special permissions, no computer needed.
+No root, no special permissions, no computer needed to use the app.
 
-On many OPPO phones the "press the power button twice" shortcut can only open a few apps chosen by
-the firmware, and Google Wallet is not one of them. gWallet Bridge fills one of those slots and
-hands the press over to Google Wallet.
+ColorOS only offers a few firmware-approved apps for this gesture. gWallet Bridge fills one
+of those slots and opens Google Wallet after normal system authentication.
 
-> Independent project, not affiliated with OPPO, ColorOS or Google.
+**New: a FinEasy-slot variant leaves OPPO Wallet's package name free.** On the tested Find N6,
+it opens Wallet smoothly and lets OPPO Access badge show its own screen again. It uses the
+native gesture: KeySnap, accessibility services and wireless debugging are not needed.
 
-## Install (5 minutes)
+> Independent project, not affiliated with OPPO, ColorOS, FinEasy or Google.
+>
+> Version **1.1.0** introduces both variants. See the [changelog](CHANGELOG.md) for the changes
+> and migration steps. Releases through **1.0.1** contain only the original OPPO Wallet-slot APK.
 
-**You need:** an OPPO phone with ColorOS, Android 12 or newer, and Google Wallet installed.
+## Choose a variant
 
-1. **Download** `gwallet-bridge-<version>.apk` from the
-   [latest release](https://github.com/ric-ros/gwallet-bridge-oppo/releases/latest) on your phone.
-2. **Open the downloaded file** and install it. If the phone asks, allow your browser or file
-   manager to install unknown apps. ColorOS may warn that the app is not from its store: that is
-   expected for apps installed from outside a store.
-3. Open **Settings → Accessibility & convenience → Power button → Double-press Power button**.
+Both variants share the same activity and request no permissions.
+
+| Variant | Package | When to use it |
+| --- | --- | --- |
+| **FinEasy slot** (preferred where available) | `com.fintech.life` | Leaves OPPO Wallet's package free. Access badge UI was verified after removing the old bridge. Cannot coexist with the real FinEasy app. |
+| **OPPO Wallet slot** (legacy fallback) | `com.heytap.wallet` | For phones without the FinEasy entry. Conflicts with native OPPO Wallet and redirects Access badge to Google Wallet on the tested phone. |
+
+FinEasy is a regional app whose package has its own firmware shortcut slot. Our APK contains
+**this project's code**, not the real FinEasy app. That package name must be unused on your phone.
+The inspected ColorOS 17 settings code hides this entry in region **TH (Thailand)**. The new
+variant was tested with the phone's current region **NZ**. Other configurations are untested;
+we do not recommend changing region to use it.
+
+## Install
+
+You need an OPPO phone with ColorOS, Android 12 or newer, and Google Wallet installed.
+
+1. Download the APK for your chosen slot from the
+   [releases page](https://github.com/ric-ros/gwallet-bridge-oppo/releases), or build it below:
+   - **FinEasy slot:** `gwallet-bridge-1.1.0-fineasy.apk`.
+   - **Legacy Wallet slot:** `gwallet-bridge-1.1.0-oppo-wallet.apk`.
+   Older releases through 1.0.1 provide only the legacy APK, named `gwallet-bridge-<version>.apk`.
+2. Open the APK and install it. Allow your browser or file manager to install unknown apps if
+   asked. ColorOS may warn that it is not from its store.
+3. Open **Settings > Accessibility & convenience > Power button > Double-press Power button**.
    If your menus differ, search Settings for "power button".
-4. Pick **OPPO Wallet**.
-   The list shows the firmware's own name for this slot, not "gWallet Bridge". That's normal.
-5. **Try it:** double-press the power button.
-   - Phone unlocked: Google Wallet opens.
-   - Phone locked: unlock once (face, fingerprint, PIN or pattern), then Google Wallet opens. If
-     face unlock already recognised you, Wallet opens without a swipe.
+4. Enable the gesture and select the entry for your variant:
+   - **FinEasy slot:** look for **gWallet Bridge** or a firmware-provided **FinEasy** label.
+   - **Legacy Wallet slot:** select **OPPO Wallet**. In current source builds its launcher icon
+     is labelled **gWallet Bridge (Wallet slot)** to distinguish the installations.
+5. Test unlocked, then locked. Authenticate normally if asked; Google Wallet should then open.
 
-**If "OPPO Wallet" doesn't appear in step 4**, your firmware doesn't offer this slot and the app
-can't help. Uninstall it (see below).
+If the desired entry does not appear, that variant is unavailable on your configuration.
+Try the other variant subject to the conflicts above, or uninstall.
 
-> To pay contactless you don't even need to open Wallet: unlock the phone and hold it near the
-> terminal. The shortcut is handy for showing passes, tickets and loyalty cards.
+To pay contactless you do not need to open Wallet: unlock the phone and hold it near the terminal.
+The shortcut is useful for passes, tickets and loyalty cards.
+
+### Moving from the old bridge to the FinEasy slot
+
+This is a **separate installation**, not an update to the old package.
+
+1. Install the FinEasy-slot APK and select its entry in the native double-press settings.
+2. Confirm that it opens Google Wallet, including from a locked phone.
+3. Uninstall the old **gWallet Bridge** / **gWallet Bridge (Wallet slot)** (`com.heytap.wallet`).
+   Removing it is necessary to stop its Access badge interception.
+4. Open **Access badge** from Settings and check that its own screen appears.
+
+Neither bridge stores your payment cards, and removing one does not uninstall Google Wallet.
+This migration frees OPPO Wallet's package name; it does not install the full native OPPO
+Wallet app or demonstrate that a badge works at a physical reader.
+
+If you configured KeySnap for the same gesture, disable that shortcut to avoid competing launches.
+KeySnap is not part of this solution.
 
 ### Uninstall
 
-Long-press the **gWallet Bridge** icon → Uninstall. Then go back to **Double-press Power button**
-and pick another option. That's all: the app changes no settings and asks for no permissions, and
-Access badge (see below) works normally again.
+Long-press the appropriate bridge icon and uninstall it. Then choose another double-press action
+in Settings. The bridge requests no permissions and runs no background service.
 
 ## How it works
 
-ColorOS keeps a list of apps the double press may open. On the tested phone:
+On the tested phone, ColorOS's native allowlist includes both package names:
 
 ```text
 adb shell settings get global power_dw_allow_setting_pkg
 com.fintech.life+com.oplus.camera+com.oplus.accesscard+com.heytap.wallet
 ```
 
-`com.heytap.wallet` is OPPO's own Wallet app, which isn't installed on most phones outside China.
-When an app with that package name is installed, the setting offers it as "OPPO Wallet", and a
-double press starts it with the action `heytap.wallet.intent.action.OPEN`.
+Each build receives the action expected for its slot:
 
-gWallet Bridge uses that package name and has one invisible screen:
+| Gradle flavor | Package | Native action |
+| --- | --- | --- |
+| `fineasy` | `com.fintech.life` | `fintech.life.intent.action.OPEN` |
+| `oppoWallet` | `com.heytap.wallet` | `heytap.wallet.intent.action.OPEN` |
 
-- **Unlocked:** it opens Google Wallet's main screen (cards and passes). Google Wallet's
-  payment-only `QUICKDRAW` screen is the fallback.
-- **Locked:** it asks the system to dismiss the lock screen (`requestDismissKeyguard`). The system
-  removes it at once if face unlock already recognised you, otherwise it shows its own unlock
-  screen. Google Wallet opens once the lock screen is gone. It never bypasses the lock screen.
+ColorOS handles the power gesture itself and starts the bridge's single activity. This avoids
+competing with normal power-button behavior through a separate key listener.
 
-Two details from testing on ColorOS 17:
+- **Unlocked:** opens Google Wallet's main screen (cards and passes), with the payment-only
+  `QUICKDRAW` screen as a fallback.
+- **Locked:** calls `requestDismissKeyguard` once the activity has window focus. The system
+  authenticates you if necessary, then the bridge opens Wallet. It never bypasses authentication.
+- The activity checks whether the lock screen is **showing**: face recognition can unlock the
+  device while ColorOS still waits for a swipe. It requests dismissal of that screen too.
 
-- The app checks whether the lock screen is *showing*, not whether the device is *locked*: after
-  face unlock ColorOS keeps the lock screen up until you swipe, and Wallet would open hidden behind
-  it.
-- The dismiss request is made once the app's window has focus over the lock screen; earlier
-  requests are unreliable while the lock screen is still animating.
+The new variant does not change this unlock logic. It changes only the package and action
+that ColorOS launches. No internet, accessibility service, background service, Shizuku,
+KeySnap or wireless debugging is needed. See
+[MainActivity.java](app/src/main/java/io/github/ricros/gwalletbridge/MainActivity.java).
 
-The app requests no permissions: no internet, no accessibility service, no background service. The code is one file:
-[`MainActivity.java`](app/src/main/java/io/github/ricros/gwalletbridge/MainActivity.java).
+### Why keep the legacy variant?
 
-### Why the package name can't change
+The FinEasy entry may be missing, hidden by regional configuration, or occupied by the real app.
+The original variant remains a fallback for those phones.
 
-The firmware launches exactly `com.heytap.wallet`. That is the only way to get into the list
-without root. For the same reason:
+On the tested phone, Access badge hands its "use card" screen to `com.heytap.wallet` whenever
+that package is installed. The legacy bridge therefore intercepts it. Using the new variant
+and removing the old bridge restored the normal Access badge screen. Actual badge operation
+at a reader has not been tested.
 
-- the app can't be on Google Play;
-- if the real OPPO Wallet is installed, it already owns the name: uninstall one of the two.
+These package names belong to other apps and are required by this firmware workaround. The
+bridge is distributed as a side-loaded APK, not as an ordinary Google Play app.
 
-### Side effect: OPPO Access badge
+### What does not work on the tested build
 
-OPPO's **Access badge** app (`com.oplus.accesscard`) hands its "use card" screen over to OPPO
-Wallet when `com.heytap.wallet` is installed. With gWallet Bridge installed, opening Access badge
-from Settings therefore opens Google Wallet. Observed on the tested phone (Access badge 17.0.4):
-
-```text
-START act=oplus.intent.action.nfc.accesscard.swiping.LAUNCH ... from com.android.settings
-START act=heytap.wallet.intent.action.OPEN pkg=com.heytap.wallet ... from com.oplus.accesscard
-```
-
-Not tested: whether an access card stored in Access badge still works at a reader. If you rely on
-Access badge, don't install gWallet Bridge (or uninstall it to get Access badge back).
-
-### What doesn't work (so you don't have to try)
-
-Pointing the shortcut at Google Wallet with `adb` alone isn't possible on the tested build:
-
-- `settings put secure double_tap_power_button_gesture ...` and
-  `settings put global power_dw_quick_info ...` are ignored.
-- The real target comes from
-  `content://oplus.settings.quickstart.flag.provider.open/OPEN_APP_FLAG`, which needs
-  `com.oplus.permission.safe.SETTINGS`, a permission that `adb` doesn't have.
-- The firmware's own "default wallet" option (which would open Google Wallet directly) only
-  appears when `ro.oplus.rsa` contains `rsa5`. The tested phone reports `rsa4-1-tier3`.
+- Setting an arbitrary target with `settings put secure double_tap_power_button_gesture` or
+  `settings put global power_dw_quick_info`: ignored by the native controller.
+- Writing the real target provider from ADB: requires `com.oplus.permission.safe.SETTINGS`.
+- Using the firmware's own "default wallet" entry: gated on RSA5; this build reports
+  `ro.oplus.rsa=rsa4-1-tier3`.
 
 ## Tested on
 
-| Phone | Firmware | Result |
+| Phone | Firmware / configuration | Variant and result |
 | --- | --- | --- |
-| OPPO Find N6 (`CPH2765`) | Android 17, ColorOS 17, `CPH2765_17.0.0.101(EX01)` | Works, locked and unlocked |
-| OPPO Find X9 Pro | ColorOS 17 | Works ([user report](https://www.reddit.com/r/Oppo/comments/1xr90bv/comment/19scfucneya5c/); lock screen not reported) |
+| OPPO Find N6 (`CPH2765`) | Android 17, ColorOS 17, `CPH2765_17.0.0.101(EX01)`, current region NZ | **FinEasy slot:** native double press works; owner confirmed smooth fingerprint unlock into Wallet and normal Access badge UI after removing the old bridge (2026-11-16). |
+| OPPO Find N6 (`CPH2765`) | Same firmware | **Legacy Wallet slot:** locked and unlocked; fingerprint and face unlock verified. Access badge redirected to Google Wallet. |
+| OPPO Find X9 Pro | ColorOS 17 | **Legacy Wallet slot only:** [user report](https://www.reddit.com/r/Oppo/comments/1xr90bv/comment/19scfucneya5c/); lock screen not reported. |
 
-Not tested yet: most other OPPO models, other ColorOS versions, OnePlus and realme. The firmware has
-separate labels for OnePlus and realme, so the entry may have a different name there.
+FinEasy-slot testing used the same activity in a local debug build. Other phones/regions,
+reboot behavior, face-only unlock with the new slot, and badge-reader operation are untested.
+Reports for the original variant do not establish compatibility with the new one.
 
-## Help make it work on more phones
+## Help and contributions
 
-Suggestions and pull requests are welcome, especially if it doesn't work on your phone.
-
-- **It works on your phone?** Leave a comment in
-  [Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1) with your model and
-  firmware (Settings → About device), and we'll add it to the table above.
-- **It doesn't work?** Open an issue with your model, firmware, what you saw, and if you can, the
-  output of `adb shell settings get global power_dw_allow_setting_pkg`. Logs from
-  `adb logcat -d | grep -E "DoubleWake|heytap.wallet"` right after a double press help a lot.
-- **You found a fix?** Pull requests are very welcome. Please say which phone and firmware you
-  tested it on.
-
-Details and the few rules for pull requests are in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-### Check with adb (optional)
+Report working phones in [Tested phones](https://github.com/ric-ros/gwallet-bridge-oppo/discussions/1).
+Include model, firmware, region, **which variant**, the entry label in Settings, and locked/unlocked
+results. For failures, open an issue with the same details. ADB logs can help:
 
 ```sh
-adb shell settings get global power_dw_allow_setting_pkg   # should contain com.heytap.wallet
-adb install -r gwallet-bridge-<version>.apk
-adb shell am start -a heytap.wallet.intent.action.OPEN -p com.heytap.wallet
-adb shell "dumpsys activity activities | grep topResumedActivity"   # expect walletnfcrel
-adb logcat -d | grep GWalletBridge   # debug builds only: ColorOS hid the release build's log
+adb shell settings get global power_dw_allow_setting_pkg
+adb logcat -d | grep -E "DoubleWake|heytap.wallet|fintech.life"
 ```
+
+Remove personal information before posting logs. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Check with ADB
+
+```sh
+# FinEasy slot
+adb install -r app/build/outputs/apk/fineasy/debug/app-fineasy-debug.apk
+adb shell am start -a fintech.life.intent.action.OPEN -p com.fintech.life
+
+# Legacy Wallet slot (do not install alongside native OPPO Wallet)
+adb install -r app/build/outputs/apk/oppoWallet/debug/app-oppoWallet-debug.apk
+adb shell am start -a heytap.wallet.intent.action.OPEN -p com.heytap.wallet
+
+adb shell "dumpsys activity activities | grep topResumedActivity"
+adb logcat -d | grep GWalletBridge
+```
+
+An intent launch only checks forwarding. Test the real button and authentication on the phone too.
 
 ## Build from source
 
-Needs JDK 21 and the Android SDK (platform 36). The Gradle wrapper downloads Gradle 9.9.0.
+Needs JDK 21 and Android SDK platform 36. The included wrapper downloads Gradle 9.9.0.
 
 ```sh
 echo "sdk.dir=/path/to/Android/Sdk" > local.properties
-./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleFineasyDebug assembleOppoWalletDebug
+# Or assembleDebug to build both flavors.
 ```
 
-For a signed release build, put your keystore details in `~/.gradle/gradle.properties` (never in
-the repo):
+Outputs:
+
+- `app/build/outputs/apk/fineasy/debug/app-fineasy-debug.apk`
+- `app/build/outputs/apk/oppoWallet/debug/app-oppoWallet-debug.apk`
+
+Windows PowerShell: use `.\gradlew.bat` instead of `./gradlew`.
+
+Release signing is maintainer-controlled. Put signing properties in `~/.gradle/gradle.properties`,
+never the repository:
 
 ```properties
 GWB_STORE_FILE=/path/to/your.jks
@@ -159,8 +198,9 @@ GWB_KEY_ALIAS=...
 GWB_KEY_PASSWORD=...
 ```
 
-then run `./gradlew assembleRelease`. An APK signed with a different key can't update the official
-release: uninstall first.
+The release tasks are `assembleFineasyRelease` and `assembleOppoWalletRelease`.
+A different signing key cannot update an installed APK of the same package; uninstalling first
+removes that app's data. Different slot variants remain separate packages.
 
 Official releases are signed with this certificate (SHA-256):
 
@@ -168,12 +208,12 @@ Official releases are signed with this certificate (SHA-256):
 f3:48:25:c5:6c:4e:eb:e3:e0:98:30:a8:09:cb:39:0b:81:4d:d1:21:4a:3a:ad:f2:3a:7d:ee:38:0f:66:84:aa
 ```
 
-Check a download with `apksigner verify --print-certs gwallet-bridge-<version>.apk`.
+Check an official download with `apksigner verify --print-certs <downloaded.apk>`. Local debug
+builds, including the phone trial, use a different certificate.
 
 ## Credits and license
 
-MIT, see [LICENSE](LICENSE). Based on the Wallet bridge from
+MIT, see [LICENSE](LICENSE). Based on
 [Nielk74/coloros-power-button-launcher](https://github.com/Nielk74/coloros-power-button-launcher).
-This version keeps only the activity: the accessibility service, the boot receiver and the
-`WRITE_SECURE_SETTINGS` permission aren't needed on ColorOS 17, so the app installs like any other
-APK, without a computer.
+The project retains only the activity; no accessibility service, boot receiver or
+`WRITE_SECURE_SETTINGS` permission is needed for this native shortcut approach.

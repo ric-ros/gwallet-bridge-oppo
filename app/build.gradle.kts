@@ -7,19 +7,29 @@ plugins {
 val storeFilePath = providers.gradleProperty("GWB_STORE_FILE").orNull
 
 android {
-    // Code namespace. The applicationId below must stay com.heytap.wallet:
-    // it is the package ColorOS launches on a power-button double press.
+    // Shared code; each flavor occupies a different firmware shortcut slot.
     namespace = "io.github.ricros.gwalletbridge"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.heytap.wallet"
         minSdk = 31
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.1"
+        versionCode = 7
+        versionName = "1.1.0"
+    }
 
-        manifestPlaceholders["walletOpenAction"] = "heytap.wallet.intent.action.OPEN"
+    flavorDimensions += "shortcutSlot"
+    productFlavors {
+        create("fineasy") {
+            dimension = "shortcutSlot"
+            applicationId = "com.fintech.life"
+            manifestPlaceholders["walletOpenAction"] = "fintech.life.intent.action.OPEN"
+        }
+        create("oppoWallet") {
+            dimension = "shortcutSlot"
+            applicationId = "com.heytap.wallet"
+            manifestPlaceholders["walletOpenAction"] = "heytap.wallet.intent.action.OPEN"
+        }
     }
 
     signingConfigs {

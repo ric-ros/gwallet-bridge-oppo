@@ -24,7 +24,7 @@
             android:showWhenLocked="true"
             android:turnScreenOn="true">
 
-            <!-- ColorOS wallet quick-launch action used by firmware with an external target. -->
+            <!-- Each flavor receives the native quick-launch action for its firmware slot. -->
             <intent-filter>
                 <action android:name="${walletOpenAction}" />
                 <category android:name="android.intent.category.DEFAULT" />

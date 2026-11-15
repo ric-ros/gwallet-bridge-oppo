@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Started by ColorOS on a power-button double press (it launches {@code com.heytap.wallet}).
+ * Started by ColorOS on a power-button double press through the selected firmware slot.
  * Opens Google Wallet, first asking the system to remove the lock screen when it is showing.
  */
 public final class MainActivity extends Activity {
